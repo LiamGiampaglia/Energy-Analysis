@@ -16,7 +16,7 @@ if file:
     if file.name.endswith(".csv"):
         df = pd.read_csv(file)
     else:
-        df = pd.read_excel(file, engine="openpyxl")
+        df = pd.read_excel(file, engine="openpyxl", skiprows=1)
 
     # -----------------------------
     # Standardise columns
@@ -24,13 +24,16 @@ if file:
     df.columns = df.columns.str.strip()
 
     # Rename for consistency
+    
     df = df.rename(columns={
-        df.columns[0]: "datetime",
-        df.columns[1]: "consumption"
+        "Date": "datetime",
+        "Value": "consumption"
     })
-
+    
     # Convert datetime
-    df["datetime"] = pd.to_datetime(df["datetime"], dayfirst=True)
+    
+    df["datetime"] = pd.to_datetime(df["datetime"], dayfirst=True, errors="coerce")
+    df = df.dropna(subset=["datetime"])
 
     # Sort
     df = df.sort_values("datetime")
