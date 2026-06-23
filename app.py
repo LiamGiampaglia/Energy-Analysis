@@ -446,11 +446,11 @@ if files:
             
         return file_stream
         
-        word_file = create_word_report()
+    word_file = create_word_report()
         
-        st.download_button(
-            label="Download Word Report",
-            data=word_file,
-            file_name="energy_report.docx",
-            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        )
+    st.download_button(
+        label="Download Word Report",
+        data=word_file,
+        file_name="energy_report.docx",
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
