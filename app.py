@@ -40,6 +40,21 @@ if files:
             
             # Remove header row from data
             temp_df = temp_df.iloc[1:].reset_index(drop=True)
+            
+                      
+            # ✅ Convert values
+            temp_df["interval"] = pd.to_numeric(temp_df["interval"], errors="coerce")
+            temp_df["consumption"] = pd.to_numeric(temp_df["consumption"], errors="coerce")
+            
+            # ✅ Create datetime
+            temp_df["datetime"] = temp_df["date"] + pd.to_timedelta(
+                (temp_df["interval"] - 1) * 30,
+                unit="minutes"
+            )
+            
+            # ✅ Clean
+            temp_df = temp_df.dropna(subset=["datetime", "consumption"])
+
 
         # ✅ ADD FUEL TYPE FROM FILE NAME
         if "gas" in file.name.lower():
