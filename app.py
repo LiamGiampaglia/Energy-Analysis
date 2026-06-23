@@ -33,28 +33,34 @@ if files:
         temp_df.columns = temp_df.columns.str.strip()
         
         # Detect format
-        if temp_df.shape[1] > 2:
         
-            # Wide format (48 columns)
+        if temp_df.shape[1] > 10:
+        
+            # First column = date
             date_col = temp_df.columns[0]
         
             temp_df = temp_df.rename(columns={date_col: "date"})
         
+            # Melt values (columns 1–48)
             temp_df = temp_df.melt(
                 id_vars=["date"],
                 var_name="interval",
                 value_name="consumption"
             )
         
+            # Convert date
             temp_df["date"] = pd.to_datetime(temp_df["date"], dayfirst=True, errors="coerce")
-            
-            temp_df["interval"] = temp_df.groupby("date").cumcount()
-            
+        
+            # ✅ Convert interval column to numeric (1–48)
+            temp_df["interval"] = pd.to_numeric(temp_df["interval"], errors="coerce")
+        
+            # ✅ Convert interval → time (30-min slots)
             temp_df["datetime"] = temp_df["date"] + pd.to_timedelta(
-                temp_df["interval"] * 30, unit="minutes"
+                (temp_df["interval"] - 1) * 30, unit="minutes"
             )
-            
+        
             temp_df = temp_df.drop(columns=["date", "interval"])
+
 
             
         
