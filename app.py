@@ -149,67 +149,67 @@ load_std = df["consumption"].std()
     
 report_items = []
 
-    # -----------------------------
-    # 1. Time Series
-    # -----------------------------
-    st.subheader("📈 Time Series")
+# -----------------------------
+# 1. Time Series
+# -----------------------------
+st.subheader("📈 Time Series")
 
-    fig, ax = plt.subplots(figsize=(10,4))
-    ax.plot(df["datetime"], df["consumption"])
-    ax.set_ylabel("kWh")
-    st.pyplot(fig)
+fig, ax = plt.subplots(figsize=(10,4))
+ax.plot(df["datetime"], df["consumption"])
+ax.set_ylabel("kWh")
+st.pyplot(fig)
 
-    text = f"""
-        **Insight:**  
-        The time series shows energy consumption ranging from approximately **{base_load:.1f} kWh to {peak_load:.1f} kWh**.  
-        Average demand is **{avg_load:.1f} kWh**, indicating overall site usage.
-        
-        Daily cycling is clearly visible, suggesting structured operational hours.  
-        {'Significant variation between peaks and troughs indicates strong operational influence on demand.' if peak_load > base_load * 2 else 'Relatively stable demand suggests more constant operational usage.'}
-        """
-
-    
-    st.markdown(text)
-    
-    # Save figure
-    img = io.BytesIO()
-    fig.savefig(img, format='png')
-    img.seek(0)
-    
-    report_items.append(("Time Series", text, img))
-
-
-    # -----------------------------
-    # 2. Average Daily Profile
-    # -----------------------------
-    st.subheader("📊 Average Daily Load Profile")
-
-    avg_profile = df.groupby("hour")["consumption"].mean()
-
-    fig, ax = plt.subplots()
-    ax.plot(avg_profile.index, avg_profile.values)
-    ax.set_xlabel("Hour of Day")
-    ax.set_ylabel("Average kWh")
-    st.pyplot(fig)
-
-    text = f"""
+text = f"""
     **Insight:**  
-    The average daily profile shows a **base load of ~{base_load:.1f} kWh** during low-use periods 
-    and peak demand reaching **~{peak_load:.1f} kWh** during active hours.
-    
-    Daytime consumption averages **{day_load:.1f} kWh**, compared to night-time levels of **{night_load:.1f} kWh**.
-    
-    {'A strong increase during working hours indicates occupancy-driven demand.' if day_load > night_load * 1.5 else 'Limited variation suggests equipment may be running continuously.'}
+    The time series shows energy consumption ranging from approximately **{base_load:.1f} kWh to {peak_load:.1f} kWh**.  
+    Average demand is **{avg_load:.1f} kWh**, indicating overall site usage.
+        
+    Daily cycling is clearly visible, suggesting structured operational hours.  
+    {'Significant variation between peaks and troughs indicates strong operational influence on demand.' if peak_load > base_load * 2 else 'Relatively stable demand suggests more constant operational usage.'}
     """
 
-    st.markdown(text)
     
-    # Save figure
-    img = io.BytesIO()
-    fig.savefig(img, format='png')
-    img.seek(0)
+st.markdown(text)
     
-    report_items.append(("Average Daily Load Profile", text, img))
+# Save figure
+img = io.BytesIO()
+fig.savefig(img, format='png')
+img.seek(0)
+    
+report_items.append(("Time Series", text, img))
+
+
+# -----------------------------
+# 2. Average Daily Profile
+# -----------------------------
+st.subheader("📊 Average Daily Load Profile")
+
+avg_profile = df.groupby("hour")["consumption"].mean()
+
+fig, ax = plt.subplots()
+ax.plot(avg_profile.index, avg_profile.values)
+ax.set_xlabel("Hour of Day")
+ax.set_ylabel("Average kWh")
+st.pyplot(fig)
+
+text = f"""
+**Insight:**  
+The average daily profile shows a **base load of ~{base_load:.1f} kWh** during low-use periods 
+and peak demand reaching **~{peak_load:.1f} kWh** during active hours.
+    
+Daytime consumption averages **{day_load:.1f} kWh**, compared to night-time levels of **{night_load:.1f} kWh**.
+    
+{'A strong increase during working hours indicates occupancy-driven demand.' if day_load > night_load * 1.5 else 'Limited variation suggests equipment may be running continuously.'}
+"""
+
+st.markdown(text)
+    
+# Save figure
+img = io.BytesIO()
+fig.savefig(img, format='png')
+img.seek(0)
+    
+report_items.append(("Average Daily Load Profile", text, img))
 
     # -----------------------------
     # 3. Weekday vs Weekend
