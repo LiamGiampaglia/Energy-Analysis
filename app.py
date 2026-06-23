@@ -193,14 +193,14 @@ ax.set_ylabel("Average kWh")
 st.pyplot(fig)
 
 text = f"""
-**Insight:**  
-The average daily profile shows a **base load of ~{base_load:.1f} kWh** during low-use periods 
-and peak demand reaching **~{peak_load:.1f} kWh** during active hours.
-    
-Daytime consumption averages **{day_load:.1f} kWh**, compared to night-time levels of **{night_load:.1f} kWh**.
-    
-{'A strong increase during working hours indicates occupancy-driven demand.' if day_load > night_load * 1.5 else 'Limited variation suggests equipment may be running continuously.'}
-"""
+    **Insight:**  
+    The average daily profile shows a **base load of ~{base_load:.1f} kWh** during low-use periods 
+    and peak demand reaching **~{peak_load:.1f} kWh** during active hours.
+        
+    Daytime consumption averages **{day_load:.1f} kWh**, compared to night-time levels of **{night_load:.1f} kWh**.
+        
+    {'A strong increase during working hours indicates occupancy-driven demand.' if day_load > night_load * 1.5 else 'Limited variation suggests equipment may be running continuously.'}
+    """
 
 st.markdown(text)
     
@@ -211,53 +211,53 @@ img.seek(0)
     
 report_items.append(("Average Daily Load Profile", text, img))
 
-    # -----------------------------
-    # 3. Weekday vs Weekend
-    # -----------------------------
-    st.subheader("📅 Weekday vs Weekend")
+# -----------------------------
+# 3. Weekday vs Weekend
+# -----------------------------
+st.subheader("📅 Weekday vs Weekend")
 
-    weekday = df[df["is_weekend"] == False].groupby("hour")["consumption"].mean()
-    weekend = df[df["is_weekend"] == True].groupby("hour")["consumption"].mean()
+weekday = df[df["is_weekend"] == False].groupby("hour")["consumption"].mean()
+weekend = df[df["is_weekend"] == True].groupby("hour")["consumption"].mean()
 
-    fig, ax = plt.subplots()
-    ax.plot(weekday.index, weekday.values, label="Weekday")
-    ax.plot(weekend.index, weekend.values, label="Weekend")
-    ax.legend()
-    st.pyplot(fig)
+fig, ax = plt.subplots()
+ax.plot(weekday.index, weekday.values, label="Weekday")
+ax.plot(weekend.index, weekend.values, label="Weekend")
+ax.legend()
+st.pyplot(fig)
 
-    text = f"""
+text = f"""
     **Insight:**  
     Average weekday consumption is **{weekday_avg:.1f} kWh**, compared to **{weekend_avg:.1f} kWh** on weekends.
     
     {'There is a clear reduction in weekend consumption, indicating reduced occupancy and operational activity.' if weekend_avg < weekday_avg * 0.8 else 'Weekend consumption remains relatively high, suggesting systems may be running unnecessarily outside working hours.'}
     """
 
-    st.markdown(text)
+st.markdown(text)
 
-    # Save figure
-    img = io.BytesIO()
-    fig.savefig(img, format='png')
-    img.seek(0)
+# Save figure
+img = io.BytesIO()
+fig.savefig(img, format='png')
+img.seek(0)
     
-    report_items.append(("Weekday vs Weekend", text, img))
+report_items.append(("Weekday vs Weekend", text, img))
 
-    # -----------------------------
-    # 4. Heatmap
-    # -----------------------------
-    st.subheader("🔥 Heatmap")
+# -----------------------------
+# 4. Heatmap
+# -----------------------------
+st.subheader("🔥 Heatmap")
 
-    heatmap = df.pivot_table(
-        index="date",
-        columns="hour",
-        values="consumption",
-        aggfunc="mean"
-    )
+heatmap = df.pivot_table(
+    index="date",
+    columns="hour",
+    values="consumption",
+    aggfunc="mean"
+)
 
-    fig, ax = plt.subplots(figsize=(12,6))
-    sns.heatmap(heatmap, cmap="coolwarm", ax=ax)
-    st.pyplot(fig)
+fig, ax = plt.subplots(figsize=(12,6))
+sns.heatmap(heatmap, cmap="coolwarm", ax=ax)
+st.pyplot(fig)
 
-    text = f"""
+text = f"""
     **Insight:**  
     The heatmap highlights consistent daily patterns, with higher consumption concentrated during peak hours.
     
@@ -267,28 +267,28 @@ report_items.append(("Average Daily Load Profile", text, img))
     This visual is particularly useful for identifying anomalies or unusual spikes in demand.
     """
 
-    st.markdown(text)
+st.markdown(text)
 
-    # Save figure
-    img = io.BytesIO()
-    fig.savefig(img, format='png')
-    img.seek(0)
+# Save figure
+img = io.BytesIO()
+fig.savefig(img, format='png')
+img.seek(0)
     
-    report_items.append(("Heatmap", text, img))
+report_items.append(("Heatmap", text, img))
 
-    # -----------------------------
-    # 5. Load Duration Curve
-    # -----------------------------
-    st.subheader("⚡ Load Duration Curve")
+# -----------------------------
+# 5. Load Duration Curve
+# -----------------------------
+st.subheader("⚡ Load Duration Curve")
 
-    ldc = df["consumption"].sort_values(ascending=False).reset_index(drop=True)
+ldc = df["consumption"].sort_values(ascending=False).reset_index(drop=True)
 
-    fig, ax = plt.subplots()
-    ax.plot(ldc)
-    ax.set_ylabel("kWh")
-    st.pyplot(fig)
+fig, ax = plt.subplots()
+ax.plot(ldc)
+ax.set_ylabel("kWh")
+st.pyplot(fig)
 
-    text = f"""
+text = f"""
     **Insight:**  
     The load duration curve shows that peak demand reaches **{peak_load:.1f} kWh**, 
     while the base load remains around **{base_load:.1f} kWh**.
@@ -298,28 +298,28 @@ report_items.append(("Average Daily Load Profile", text, img))
     This indicates how frequently high loads occur and helps separate base load from operational demand.
     """
 
-    st.markdown(text)
+st.markdown(text)
 
-    # Save figure
-    img = io.BytesIO()
-    fig.savefig(img, format='png')
-    img.seek(0)
+# Save figure
+img = io.BytesIO()
+fig.savefig(img, format='png')
+img.seek(0)
     
-    report_items.append(("Load Duration Curve", text, img))
+report_items.append(("Load Duration Curve", text, img))
     
-    # -----------------------------
-    # 6. Peak Demand
-    # -----------------------------
-    st.subheader("🔺 Daily Peak Demand")
+# -----------------------------
+# 6. Peak Demand
+# -----------------------------
+st.subheader("🔺 Daily Peak Demand")
 
-    peak = df.groupby("date")["consumption"].max()
+peak = df.groupby("date")["consumption"].max()
 
-    fig, ax = plt.subplots()
-    ax.plot(peak.index, peak.values)
-    ax.set_ylabel("Peak kWh")
-    st.pyplot(fig)
+fig, ax = plt.subplots()
+ax.plot(peak.index, peak.values)
+ax.set_ylabel("Peak kWh")
+st.pyplot(fig)
 
-    text = f"""
+text = f"""
     **Insight:**  
     Daily peak demand reaches up to **{peak_load:.1f} kWh**, indicating the highest operational load on site.
     
@@ -328,26 +328,26 @@ report_items.append(("Average Daily Load Profile", text, img))
     {'High peaks relative to average demand suggest opportunities to reduce maximum load.' if peak_load > avg_load * 1.5 else 'Peak demand is relatively stable compared to average usage.'}
     """
     
-    st.markdown(text)
+st.markdown(text)
     
-    # Save figure
-    img = io.BytesIO()
-    fig.savefig(img, format='png')
-    img.seek(0)
+# Save figure
+img = io.BytesIO()
+fig.savefig(img, format='png')
+img.seek(0)
     
-    report_items.append(("Peak Demand", text, img))
+report_items.append(("Peak Demand", text, img))
 
-    # -----------------------------
-    # 7. Histogram
-    # -----------------------------
-    st.subheader("📉 Load Distribution")
+# -----------------------------
+# 7. Histogram
+# -----------------------------
+st.subheader("📉 Load Distribution")
 
-    fig, ax = plt.subplots()
-    ax.hist(df["consumption"], bins=40)
-    ax.set_xlabel("kWh")
-    st.pyplot(fig)
+fig, ax = plt.subplots()
+ax.hist(df["consumption"], bins=40)
+ax.set_xlabel("kWh")
+st.pyplot(fig)
 
-    text = f"""
+text = f"""
     **Insight:**  
     The distribution shows most consumption values centred around **{avg_load:.1f} kWh**, 
     with a base load near **{base_load:.1f} kWh**.
@@ -355,84 +355,84 @@ report_items.append(("Average Daily Load Profile", text, img))
     {'A wide spread of values indicates varied operational demand throughout the day.' if load_std > 10 else 'A narrow distribution suggests consistent energy usage.'}
     """
 
-    st.markdown(text)
+st.markdown(text)
     
-    # Save figure
-    img = io.BytesIO()
-    fig.savefig(img, format='png')
-    img.seek(0)
+# Save figure
+img = io.BytesIO()
+fig.savefig(img, format='png')
+img.seek(0)
     
-    report_items.append(("Histogram", text, img))
+report_items.append(("Histogram", text, img))
 
-    # -----------------------------
-    # Recommendations Engine
-    # -----------------------------
-    recommendations = []
+# -----------------------------
+# Recommendations Engine
+# -----------------------------
+recommendations = []
     
-    if night_load > base_load * 1.2:
-        recommendations.append(
-            f"Reduce out-of-hours consumption. Night load ({night_load:.1f} kWh) is high relative to base load ({base_load:.1f} kWh)."
-        )
+if night_load > base_load * 1.2:
+    recommendations.append(
+        f"Reduce out-of-hours consumption. Night load ({night_load:.1f} kWh) is high relative to base load ({base_load:.1f} kWh)."
+    )
     
-    if weekend_avg > weekday_avg * 0.8:
-        recommendations.append(
-            "Investigate weekend usage. Consumption remains high outside normal working days."
-        )
+if weekend_avg > weekday_avg * 0.8:
+    recommendations.append(
+        "Investigate weekend usage. Consumption remains high outside normal working days."
+    )
     
-    if peak_load > avg_load * 1.5:
-        recommendations.append(
-            f"Peak demand is high ({peak_load:.1f} kWh). Consider load shifting or reducing peak usage."
-        )
+if peak_load > avg_load * 1.5:
+    recommendations.append(
+        f"Peak demand is high ({peak_load:.1f} kWh). Consider load shifting or reducing peak usage."
+    )
 
-    # -----------------------------
-    # Copilot Prompt Generator
-    # -----------------------------
-    copilot_prompt = f"""
-    You are an energy analyst. Based on the following building energy data:
+# -----------------------------
+# Copilot Prompt Generator
+# -----------------------------
+copilot_prompt = f"""
+You are an energy analyst. Based on the following building energy data:
     
-    - Base load: {base_load:.1f} kWh
-    - Average load: {avg_load:.1f} kWh
-    - Peak load: {peak_load:.1f} kWh
-    - Daytime load: {day_load:.1f} kWh
-    - Night load: {night_load:.1f} kWh
-    - Weekday average: {weekday_avg:.1f} kWh
-    - Weekend average: {weekend_avg:.1f} kWh
-    - Load variability: {load_std:.1f}
+- Base load: {base_load:.1f} kWh
+- Average load: {avg_load:.1f} kWh
+- Peak load: {peak_load:.1f} kWh
+- Daytime load: {day_load:.1f} kWh
+- Night load: {night_load:.1f} kWh
+- Weekday average: {weekday_avg:.1f} kWh
+- Weekend average: {weekend_avg:.1f} kWh
+- Load variability: {load_std:.1f}
     
-    Write a professional energy report including:
-    1. Key findings
-    2. Inefficiencies
-    3. Energy-saving recommendations
-    4. Operational improvements
+Write a professional energy report including:
+1. Key findings
+2. Inefficiencies
+3. Energy-saving recommendations
+4. Operational improvements
     
-    Use formal report language.
-    """
+Use formal report language.
+"""
 
-    st.subheader("🤖 Copilot Prompt (for advanced analysis)")
-    st.code(copilot_prompt)
+st.subheader("🤖 Copilot Prompt (for advanced analysis)")
+st.code(copilot_prompt)
 
 
-    # -----------------------------
-    # Download charts-ready data
-    # -----------------------------
+# -----------------------------
+# Download charts-ready data
+# -----------------------------
     
-    st.subheader("📄 Download Energy Report")
+st.subheader("📄 Download Energy Report")
     
-    def create_word_report():
-        doc = Document()
-        doc.add_heading("Energy Analysis Report", 0)
+def create_word_report():
+    doc = Document()
+    doc.add_heading("Energy Analysis Report", 0)
     
-        for title, text, img in report_items:
-            doc.add_heading(title, level=1)
-            doc.add_paragraph(text)
+    for title, text, img in report_items:
+        doc.add_heading(title, level=1)
+        doc.add_paragraph(text)
     
-            # Add image
-            doc.add_picture(img, width=Inches(6))
+        # Add image
+        doc.add_picture(img, width=Inches(6))
     
-        file_stream = io.BytesIO()
-        doc.add_heading("Recommendations", level=1)
-        for rec in recommendations:
-            doc.add_paragraph(f"- {rec}")
+    file_stream = io.BytesIO()
+    doc.add_heading("Recommendations", level=1)
+    for rec in recommendations:
+        doc.add_paragraph(f"- {rec}")
         
         doc.add_heading("Copilot Prompts", level=1)
         
@@ -448,8 +448,7 @@ report_items.append(("Average Daily Load Profile", text, img))
         doc.save(file_stream)
         file_stream.seek(0)
         
-        return file_stream
-    
+    return file_stream
     
     word_file = create_word_report()
     
