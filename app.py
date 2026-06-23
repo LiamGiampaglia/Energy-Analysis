@@ -285,6 +285,54 @@ if file:
     report_items.append(("Histogram", text, img))
 
     # -----------------------------
+    # Recommendations Engine
+    # -----------------------------
+    recommendations = []
+    
+    if night_load > base_load * 1.2:
+        recommendations.append(
+            f"Reduce out-of-hours consumption. Night load ({night_load:.1f} kWh) is high relative to base load ({base_load:.1f} kWh)."
+        )
+    
+    if weekend_avg > weekday_avg * 0.8:
+        recommendations.append(
+            "Investigate weekend usage. Consumption remains high outside normal working days."
+        )
+    
+    if peak_load > avg_load * 1.5:
+        recommendations.append(
+            f"Peak demand is high ({peak_load:.1f} kWh). Consider load shifting or reducing peak usage."
+        )
+
+    # -----------------------------
+    # Copilot Prompt Generator
+    # -----------------------------
+    copilot_prompt = f"""
+    You are an energy analyst. Based on the following building energy data:
+    
+    - Base load: {base_load:.1f} kWh
+    - Average load: {avg_load:.1f} kWh
+    - Peak load: {peak_load:.1f} kWh
+    - Daytime load: {day_load:.1f} kWh
+    - Night load: {night_load:.1f} kWh
+    - Weekday average: {weekday_avg:.1f} kWh
+    - Weekend average: {weekend_avg:.1f} kWh
+    - Load variability: {load_std:.1f}
+    
+    Write a professional energy report including:
+    1. Key findings
+    2. Inefficiencies
+    3. Energy-saving recommendations
+    4. Operational improvements
+    
+    Use formal report language.
+    """
+
+    st.subheader("🤖 Copilot Prompt (for advanced analysis)")
+    st.code(copilot_prompt)
+
+
+    # -----------------------------
     # Download charts-ready data
     # -----------------------------
     
@@ -304,7 +352,23 @@ if file:
         file_stream = io.BytesIO()
         doc.save(file_stream)
         file_stream.seek(0)
-    
+        
+        doc.add_heading("Recommendations", level=1)
+        for rec in recommendations:
+            doc.add_paragraph(f"- {rec}")
+        
+        doc.add_heading("Copilot Prompts", level=1)
+        
+        doc.add_paragraph("Use the following prompts in Microsoft Copilot or other AI tools:")
+        
+        doc.add_paragraph(copilot_prompt)
+        
+        doc.add_paragraph("Additional prompts:")
+        
+        doc.add_paragraph(
+            f"Identify energy savings from base load {base_load:.1f} kWh and peak {peak_load:.1f} kWh."
+        )
+
         return file_stream
     
     
