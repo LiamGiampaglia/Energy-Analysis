@@ -32,66 +32,45 @@ if files:
         else:
             temp_df = pd.read_excel(file, engine="openpyxl", header=None)
     
-            # ✅ Fix headers
             headers = temp_df.iloc[0]
             headers = headers.fillna("").astype(str).str.strip()
             headers.iloc[0] = "date"
     
             temp_df.columns = headers
-    
-            # ✅ Remove header row
             temp_df = temp_df.iloc[1:].reset_index(drop=True)
-    
-            # ✅ Drop empty columns
             temp_df = temp_df.loc[:, temp_df.columns != ""]
     
-            # ✅ Convert date
             temp_df["date"] = pd.to_datetime(temp_df["date"], dayfirst=True, errors="coerce")
     
-            # ✅ Melt (THIS MUST BE INSIDE LOOP)
             temp_df = temp_df.melt(
                 id_vars=["date"],
                 var_name="interval",
                 value_name="consumption"
             )
     
-            # ✅ Convert values
             temp_df["interval"] = pd.to_numeric(temp_df["interval"], errors="coerce")
-            
-            temp_df["consumption"] = (
-                temp_df["consumption"]
-                .astype(str)
-                .str.replace(",", ".", regex=False)   # fix decimal commas
-                .str.replace("\xa0", "", regex=False) # remove weird spaces
-                .str.strip()
-            )
-            
             temp_df["consumption"] = pd.to_numeric(temp_df["consumption"], errors="coerce")
-
     
-            # ✅ Create datetime
             temp_df["datetime"] = temp_df["date"] + pd.to_timedelta(
                 (temp_df["interval"] - 1) * 30,
                 unit="minutes"
             )
     
-            # ✅ Clean
             temp_df = temp_df.dropna(subset=["datetime", "consumption"])
-
-    # ✅ Add fuel
-    if "gas" in file.name.lower():
-        temp_df["fuel"] = "Gas"
-    elif "elec" in file.name.lower() or "electric" in file.name.lower():
-        temp_df["fuel"] = "Electricity"
-    else:
-        temp_df["fuel"] = "Unknown"
-
-    # ✅ Append ONLY if valid
-    if not temp_df.empty:
-        all_data.append(temp_df)
-    else:
-        st.warning(f"{file.name} produced no usable data")
-
+    
+        # ✅ MOVE THIS INSIDE LOOP
+        if "gas" in file.name.lower():
+            temp_df["fuel"] = "Gas"
+        elif "elec" in file.name.lower() or "electric" in file.name.lower():
+            temp_df["fuel"] = "Electricity"
+        else:
+            temp_df["fuel"] = "Unknown"
+    
+        # ✅ MOVE THIS INSIDE LOOP
+        if not temp_df.empty:
+            all_data.append(temp_df)
+        else:
+            st.warning(f"{file.name} produced no usable data")
 
         # ✅ ADD FUEL TYPE FROM FILE NAME
         if "gas" in file.name.lower():
