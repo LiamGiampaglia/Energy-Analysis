@@ -30,13 +30,18 @@ if files:
         else:
             temp_df = pd.read_excel(file, engine="openpyxl", header=None)
             
-            # First row = intervals (1–48)
-            headers = temp_df.iloc[0].tolist()
             
-            # Create proper column names
-            headers[0] = "date"   # first column is date
+            # ✅ Clean header row properly
+            headers = temp_df.iloc[0]
+            
+            headers = headers.fillna("")  # remove NaN
+            headers = headers.astype(str).str.strip()
+            
+            headers.iloc[0] = "date"
             
             temp_df.columns = headers
+            temp_df = temp_df.loc[:, temp_df.columns != ""]
+
             
             # Remove header row from data
             temp_df = temp_df.iloc[1:].reset_index(drop=True)
