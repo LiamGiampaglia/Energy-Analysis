@@ -49,10 +49,23 @@ if files:
         else:
             temp_df["fuel"] = "Unknown"
 
-        all_data.append(temp_df)
+        
+        if "datetime" in temp_df.columns and "consumption" in temp_df.columns:
+            all_data.append(temp_df)
+        else:
+            st.warning(f"{file.name} was skipped (missing required columns)")
 
+
+    
+    if len(all_data) == 0:
+        st.error("No valid data files processed")
+        st.stop()
+    
     df = pd.concat(all_data)
+    
+    # ✅ Now safe to sort
     df = df.sort_values("datetime")
+
     temp_df.columns = temp_df.columns.astype(str)
     
     # ✅ Convert date
