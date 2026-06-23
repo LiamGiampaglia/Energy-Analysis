@@ -82,6 +82,42 @@ if files:
         else:
             df = df.groupby("datetime")["consumption"].sum().reset_index()
 
+# Detect if file is wide format (48 columns)
+if temp_df.shape[1] > 2:
+
+    # First column = date
+    date_col = temp_df.columns[0]
+
+    temp_df = temp_df.rename(columns={date_col: "date"})
+
+    # Melt (convert wide → long)
+    temp_df = temp_df.melt(
+        id_vars=["date"],
+        var_name="interval",
+        value_name="consumption"
+    )
+
+    # Create proper datetime
+    temp_df["date"] = pd.to_datetime(temp_df["date"], dayfirst=True, errors="coerce")
+
+    # Create half-hour index
+    temp_df["interval"] = temp_df.groupby("date").cumcount()
+
+    temp_df["datetime"] = temp_df["date"] + pd.to_timedelta(
+        temp_df["interval"] * 30, unit="minutes"
+    )
+
+    temp_df = temp_df.drop(columns=["date", "interval"])
+
+else:
+    # Standard format
+    temp_df = temp_df.rename(columns={
+        "Date": "datetime",
+        "Value": "consumption"
+    })
+
+    temp_df["datetime"] = pd.to_datetime(temp_df["datetime"], dayfirst=True, errors="coerce")
+
 
     # -----------------------------
     # Standardise columns
