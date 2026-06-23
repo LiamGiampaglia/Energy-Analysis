@@ -53,16 +53,15 @@ if files:
     df = pd.concat(all_data)
     df = df.sort_values("datetime")
 
+    fuel_options = df["fuel"].unique()
     
-fuel_options = df["fuel"].unique()
-
-selected_fuel = st.sidebar.selectbox(
-    "Select Fuel Type",
-    ["All"] + list(fuel_options)
-)
-
-if selected_fuel != "All":
-    df = df[df["fuel"] == selected_fuel]
+    selected_fuel = st.sidebar.selectbox(
+        "Select Fuel Type",
+        ["All"] + list(fuel_options)
+    )
+    
+    if selected_fuel != "All":
+        df = df[df["fuel"] == selected_fuel]
 
 
 meter_column = st.sidebar.selectbox(
@@ -87,20 +86,8 @@ if meter_column != "None":
     # -----------------------------
     # Standardise columns
     # -----------------------------
-    df.columns = df.columns.str.strip()
 
-    # Rename for consistency
-    
-    df = df.rename(columns={
-        "Date": "datetime",
-        "Value": "consumption"
-    })
-    
-    # Convert datetime
-    
-    df["datetime"] = pd.to_datetime(df["datetime"], dayfirst=True, errors="coerce")
     df = df.dropna(subset=["datetime"])
-
     # Sort
     df = df.sort_values("datetime")
 
@@ -412,9 +399,6 @@ if meter_column != "None":
             doc.add_picture(img, width=Inches(6))
     
         file_stream = io.BytesIO()
-        doc.save(file_stream)
-        file_stream.seek(0)
-        
         doc.add_heading("Recommendations", level=1)
         for rec in recommendations:
             doc.add_paragraph(f"- {rec}")
@@ -430,7 +414,9 @@ if meter_column != "None":
         doc.add_paragraph(
             f"Identify energy savings from base load {base_load:.1f} kWh and peak {peak_load:.1f} kWh."
         )
-
+        doc.save(file_stream)
+        file_stream.seek(0)
+        
         return file_stream
     
     
