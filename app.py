@@ -56,6 +56,31 @@ if files:
 
     df = pd.concat(all_data)
     df = df.sort_values("datetime")
+    temp_df.columns = temp_df.columns.astype(str)
+    
+    # ✅ Convert date
+    temp_df["date"] = pd.to_datetime(temp_df["date"], dayfirst=True, errors="coerce")
+    
+    # ✅ Convert wide → long
+    temp_df = temp_df.melt(
+        id_vars=["date"],
+        var_name="interval",
+        value_name="consumption"
+    )
+    
+    # ✅ Convert fields
+    temp_df["interval"] = pd.to_numeric(temp_df["interval"], errors="coerce")
+    temp_df["consumption"] = pd.to_numeric(temp_df["consumption"], errors="coerce")
+    
+    # ✅ Create datetime
+    temp_df["datetime"] = temp_df["date"] + pd.to_timedelta(
+        (temp_df["interval"] - 1) * 30,
+        unit="minutes"
+    )
+    
+    # ✅ Final clean
+    temp_df = temp_df.dropna(subset=["datetime", "consumption"])
+
 
     fuel_options = df["fuel"].unique()
     
