@@ -216,7 +216,7 @@ if file:
     {'The steep curve suggests short periods of high demand.' if peak_load > avg_load * 1.5 else 'The relatively flat curve suggests consistent energy use across the period.'}
     
     This indicates how frequently high loads occur and helps separate base load from operational demand.
-    """)
+    """
 
     st.markdown(text)
 
