@@ -64,23 +64,23 @@ if files:
         df = df[df["fuel"] == selected_fuel]
 
 
-meter_column = st.sidebar.selectbox(
-    "Select Meter Column (if applicable)",
-    ["None"] + list(df.columns)
-)
-
-if meter_column != "None":
-    meters = df[meter_column].dropna().unique()
-
-    selected_meter = st.sidebar.selectbox(
-        "Select Meter",
-        ["All"] + list(meters)
+    meter_column = st.sidebar.selectbox(
+        "Select Meter Column (if applicable)",
+        ["None"] + list(df.columns)
     )
 
-    if selected_meter != "All":
-        df = df[df[meter_column] == selected_meter]
-    else:
-        df = df.groupby("datetime")["consumption"].sum().reset_index()
+    if meter_column != "None":
+        meters = df[meter_column].dropna().unique()
+    
+        selected_meter = st.sidebar.selectbox(
+            "Select Meter",
+            ["All"] + list(meters)
+        )
+    
+        if selected_meter != "All":
+            df = df[df[meter_column] == selected_meter]
+        else:
+            df = df.groupby("datetime")["consumption"].sum().reset_index()
 
 
     # -----------------------------
