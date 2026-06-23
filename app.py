@@ -28,48 +28,49 @@ if files:
         if file.name.endswith(".csv"):
             temp_df = pd.read_csv(file)
         else:
-            temp_df = pd.read_excel(file, engine="openpyxl")
+            temp_df = pd.read_excel(file, engine="openpyxl", header=None)
+            
+            # First row = intervals (1–48)
+            headers = temp_df.iloc[0].tolist()
+            
+            # Create proper column names
+            headers[0] = "date"   # first column is date
+            
+            temp_df.columns = headers
+            
+            # Remove header row from data
+            temp_df = temp_df[1:]
+
             temp_df.columns = temp_df.columns.astype(str).str.strip()
             # ✅ Convert interval columns ONLY (exclude first column)
             new_cols = ["date"] + [str(i) for i in range(1, len(temp_df.columns))]
             temp_df.columns = new_cols
             temp_df = temp_df.rename(columns={temp_df.columns[0]: "date"})
+            temp_df["date"] = pd.to_datetime(temp_df["date"], dayfirst=True, errors="coerce
         
         # Detect format
         
-        if temp_df.shape[1] > 10:
         
-            # First column = date
-            date_col = temp_df.columns[0]
+        # ✅ Melt correctly
+        temp_df = temp_df.melt(
+            id_vars=["date"],
+            var_name="interval",
+            value_name="consumption"
+        )
         
-            temp_df = temp_df.rename(columns={date_col: "date"})
+        # Convert interval (1–48)
+        temp_df["interval"] = pd.to_numeric(temp_df["interval"], errors="coerce")
         
-            # Melt values (columns 1–48)
-            
-            temp_df = temp_df.melt(
-                id_vars=["date"],
-                var_name="interval",
-                value_name="consumption"
-            )
-            
-            # ✅ Force interval to numeric AFTER melt
-            temp_df["interval"] = temp_df["interval"].astype(int)
+        # ✅ Build datetime properly
+        temp_df["datetime"] = temp_df["date"] + pd.to_timedelta(
+            (temp_df["interval"] - 1) * 30, unit="minutes"
+        )
+        
+        # ✅ Clean consumption
+        temp_df["consumption"] = pd.to_numeric(temp_df["consumption"], errors="coerce")
+        
+        temp_df = temp_df.dropna(subset=["datetime", "consumption"])
 
-
-            
-            # ✅ Clean consumption values properly
-            temp_df["consumption"] = (
-                temp_df["consumption"]
-                .astype(str)
-                .str.replace(",", ".", regex=False)      # fix commas
-                .str.replace("\xa0", "", regex=False)    # remove weird spaces
-                .str.strip()
-            )
-            
-            # Convert to numeric
-            temp_df["consumption"] = pd.to_numeric(temp_df["consumption"], errors="coerce")
-
-            temp_df = temp_df.dropna(subset=["consumption"])
 
 
         
