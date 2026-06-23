@@ -48,24 +48,6 @@ if files:
         
             temp_df["date"] = pd.to_datetime(temp_df["date"], dayfirst=True, errors="coerce")
         
-            temp_df["interval"] = temp_df.groupby("date").cumcount()
-        
-            temp_df["datetime"] = temp_df["date"] + pd.to_timedelta(
-                temp_df["interval"] * 30, unit="minutes"
-            )
-        
-            temp_df = temp_df.drop(columns=["date", "interval"])
-        
-        else:
-        
-            # Standard format
-            temp_df = temp_df.rename(columns={
-                "Date": "datetime",
-                "Value": "consumption"
-            })
-        
-            temp_df["datetime"] = pd.to_datetime(temp_df["datetime"], dayfirst=True, errors="coerce")
-        
         # Clean
         temp_df = temp_df.dropna(subset=["datetime", "consumption"])
 
@@ -132,40 +114,40 @@ else:
     temp_df["datetime"] = pd.to_datetime(temp_df["datetime"], dayfirst=True, errors="coerce")
 
 
-    # -----------------------------
-    # Standardise columns
-    # -----------------------------
+# -----------------------------
+# Standardise columns
+# -----------------------------
 
-    df = df.dropna(subset=["datetime"])
-    # Sort
-    df = df.sort_values("datetime")
+df = df.dropna(subset=["datetime"])
+# Sort
+df = df.sort_values("datetime")
 
-    # Feature engineering
-    df["date"] = df["datetime"].dt.date
-    df["hour"] = df["datetime"].dt.hour + df["datetime"].dt.minute / 60
-    df["day"] = df["datetime"].dt.day_name()
-    df["weekday"] = df["datetime"].dt.dayofweek
-    df["is_weekend"] = df["weekday"] >= 5
+# Feature engineering
+df["date"] = df["datetime"].dt.date
+df["hour"] = df["datetime"].dt.hour + df["datetime"].dt.minute / 60
+df["day"] = df["datetime"].dt.day_name()
+df["weekday"] = df["datetime"].dt.dayofweek
+df["is_weekend"] = df["weekday"] >= 5
 
-    # -----------------------------
-    # Key metrics
-    # -----------------------------
-    base_load = df["consumption"].quantile(0.1)
-    avg_load = df["consumption"].mean()
-    peak_load = df["consumption"].max()
+# -----------------------------
+# Key metrics
+# -----------------------------
+base_load = df["consumption"].quantile(0.1)
+avg_load = df["consumption"].mean()
+peak_load = df["consumption"].max()
     
-    # Day vs night
-    day_load = df[(df["hour"] >= 8) & (df["hour"] <= 18)]["consumption"].mean()
-    night_load = df[(df["hour"] < 6)]["consumption"].mean()
+# Day vs night
+day_load = df[(df["hour"] >= 8) & (df["hour"] <= 18)]["consumption"].mean()
+night_load = df[(df["hour"] < 6)]["consumption"].mean()
     
-    # Weekend comparison
-    weekday_avg = df[df["is_weekend"] == False]["consumption"].mean()
-    weekend_avg = df[df["is_weekend"] == True]["consumption"].mean()
+# Weekend comparison
+weekday_avg = df[df["is_weekend"] == False]["consumption"].mean()
+weekend_avg = df[df["is_weekend"] == True]["consumption"].mean()
     
-    # Variability
-    load_std = df["consumption"].std()
+# Variability
+load_std = df["consumption"].std()
     
-    report_items = []
+report_items = []
 
     # -----------------------------
     # 1. Time Series
