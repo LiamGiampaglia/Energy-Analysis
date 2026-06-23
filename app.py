@@ -28,7 +28,9 @@ if files:
         if file.name.endswith(".csv"):
             temp_df = pd.read_csv(file)
         else:
-            temp_df = pd.read_excel(file, engine="openpyxl", skiprows=1)
+            temp_df = pd.read_excel(file, engine="openpyxl")
+            temp_df.columns = temp_df.columns.astype(str).str.strip()
+            temp_df = temp_df.rename(columns={temp_df.columns[0]: "date"})
 
         temp_df.columns = temp_df.columns.str.strip()
         
@@ -60,10 +62,6 @@ if files:
             )
         
             temp_df = temp_df.drop(columns=["date", "interval"])
-
-
-            
-        
         
             # Convert to numeric (CRITICAL FIX)
             temp_df["consumption"] = pd.to_numeric(temp_df["consumption"], errors="coerce")
