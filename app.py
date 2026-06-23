@@ -30,9 +30,10 @@ if files:
         else:
             temp_df = pd.read_excel(file, engine="openpyxl")
             temp_df.columns = temp_df.columns.astype(str).str.strip()
+            # ✅ Convert interval columns ONLY (exclude first column)
+            new_cols = ["date"] + [str(i) for i in range(1, len(temp_df.columns))]
+            temp_df.columns = new_cols
             temp_df = temp_df.rename(columns={temp_df.columns[0]: "date"})
-
-        temp_df.columns = temp_df.columns.str.strip()
         
         # Detect format
         
@@ -44,11 +45,21 @@ if files:
             temp_df = temp_df.rename(columns={date_col: "date"})
         
             # Melt values (columns 1–48)
+            
             temp_df = temp_df.melt(
                 id_vars=["date"],
                 var_name="interval",
                 value_name="consumption"
             )
+            
+            # ✅ Force interval to numeric AFTER melt
+            temp_df["interval"] = temp_df["interval"].astype(int)
+
+
+            temp_df["consumption"] = pd.to_numeric(temp_df["consumption"], errors="coerce")
+            temp_df = temp_df.dropna(subset=["consumption"])
+
+
         
             # Convert date
             temp_df["date"] = pd.to_datetime(temp_df["date"], dayfirst=True, errors="coerce")
@@ -112,6 +123,13 @@ if files:
             df = df[df[meter_column] == selected_meter]
         else:
             df = df.groupby("datetime")["consumption"].sum().reset_index()
+
+
+    st.write("Data sample")
+    st.write(df.head())
+    
+    st.write("Consumption stats")
+    st.write(df["consumption"].describe())
 
 
     # -----------------------------
