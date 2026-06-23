@@ -13,14 +13,76 @@ st.title("⚡ Energy Analysis Dashboard (Half-Hourly Data)")
 # -----------------------------
 # Upload file
 # -----------------------------
-file = st.file_uploader("Upload Schneider Electric data", type=["xlsx", "csv"])
+files = st.file_uploader(
+    "Upload energy data (single or multiple files)",
+    type=["xlsx", "csv"],
+    accept_multiple_files=True
+)
 
-if file:
-    # Read file
-    if file.name.endswith(".csv"):
-        df = pd.read_csv(file)
+
+if files:
+
+    all_data = []
+
+    for file in files:
+        if file.name.endswith(".csv"):
+            temp_df = pd.read_csv(file)
+        else:
+            temp_df = pd.read_excel(file, engine="openpyxl", skiprows=1)
+
+        temp_df.columns = temp_df.columns.str.strip()
+
+        temp_df = temp_df.rename(columns={
+            "Date": "datetime",
+            "Value": "consumption"
+        })
+
+        temp_df["datetime"] = pd.to_datetime(temp_df["datetime"], dayfirst=True, errors="coerce")
+        temp_df = temp_df.dropna(subset=["datetime"])
+
+        # ✅ ADD FUEL TYPE FROM FILE NAME
+        if "gas" in file.name.lower():
+            temp_df["fuel"] = "Gas"
+        elif "elec" in file.name.lower() or "electric" in file.name.lower():
+            temp_df["fuel"] = "Electricity"
+        else:
+            temp_df["fuel"] = "Unknown"
+
+        all_data.append(temp_df)
+
+    df = pd.concat(all_data)
+    df = df.sort_values("datetime")
+
+    
+fuel_options = df["fuel"].unique()
+
+selected_fuel = st.sidebar.selectbox(
+    "Select Fuel Type",
+    ["All"] + list(fuel_options)
+)
+
+if selected_fuel != "All":
+    df = df[df["fuel"] == selected_fuel]
+
+
+meter_column = st.sidebar.selectbox(
+    "Select Meter Column (if applicable)",
+    ["None"] + list(df.columns)
+)
+
+if meter_column != "None":
+    meters = df[meter_column].dropna().unique()
+
+    selected_meter = st.sidebar.selectbox(
+        "Select Meter",
+        ["All"] + list(meters)
+    )
+
+    if selected_meter != "All":
+        df = df[df[meter_column] == selected_meter]
     else:
-        df = pd.read_excel(file, engine="openpyxl", skiprows=1)
+        df = df.groupby("datetime")["consumption"].sum().reset_index()
+
 
     # -----------------------------
     # Standardise columns
