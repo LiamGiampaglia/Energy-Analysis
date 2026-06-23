@@ -47,6 +47,15 @@ if files:
             )
         
             temp_df["date"] = pd.to_datetime(temp_df["date"], dayfirst=True, errors="coerce")
+            
+            temp_df["interval"] = temp_df.groupby("date").cumcount()
+            
+            temp_df["datetime"] = temp_df["date"] + pd.to_timedelta(
+                temp_df["interval"] * 30, unit="minutes"
+            )
+            
+            temp_df = temp_df.drop(columns=["date", "interval"])
+
         
         # Clean
         temp_df = temp_df.dropna(subset=["datetime", "consumption"])
@@ -93,25 +102,6 @@ if files:
             df = df[df[meter_column] == selected_meter]
         else:
             df = df.groupby("datetime")["consumption"].sum().reset_index()
-
-
-    # Create half-hour index
-    temp_df["interval"] = temp_df.groupby("date").cumcount()
-
-    temp_df["datetime"] = temp_df["date"] + pd.to_timedelta(
-        temp_df["interval"] * 30, unit="minutes"
-    )
-
-    temp_df = temp_df.drop(columns=["date", "interval"])
-
-else:
-    # Standard format
-    temp_df = temp_df.rename(columns={
-        "Date": "datetime",
-        "Value": "consumption"
-    })
-
-    temp_df["datetime"] = pd.to_datetime(temp_df["datetime"], dayfirst=True, errors="coerce")
 
 
 # -----------------------------
