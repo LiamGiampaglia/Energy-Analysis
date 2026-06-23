@@ -42,31 +42,6 @@ if files:
             temp_df = temp_df[1:]
 
             temp_df.columns = temp_df.columns.astype(str).str.strip()
-            temp_df = temp_df.rename(columns={temp_df.columns[0]: "date"})
-            temp_df["date"] = pd.to_datetime(temp_df["date"], dayfirst=True, errors="coerce")
-        
-        # Detect format
-        
-        
-        # ✅ Melt correctly
-        temp_df = temp_df.melt(
-            id_vars=["date"],
-            var_name="interval",
-            value_name="consumption"
-        )
-        
-        # Convert interval (1–48)
-        temp_df["interval"] = pd.to_numeric(temp_df["interval"], errors="coerce")
-        
-        # ✅ Build datetime properly
-        temp_df["datetime"] = temp_df["date"] + pd.to_timedelta(
-            (temp_df["interval"] - 1) * 30, unit="minutes"
-        )
-        
-        # ✅ Clean consumption
-        temp_df["consumption"] = pd.to_numeric(temp_df["consumption"], errors="coerce")
-        
-        temp_df = temp_df.dropna(subset=["datetime", "consumption"])
 
 
         # ✅ ADD FUEL TYPE FROM FILE NAME
