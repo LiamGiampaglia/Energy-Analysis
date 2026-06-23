@@ -46,7 +46,7 @@ if files:
             new_cols = ["date"] + [str(i) for i in range(1, len(temp_df.columns))]
             temp_df.columns = new_cols
             temp_df = temp_df.rename(columns={temp_df.columns[0]: "date"})
-            temp_df["date"] = pd.to_datetime(temp_df["date"], dayfirst=True, errors="coerce"
+            temp_df["date"] = pd.to_datetime(temp_df["date"], dayfirst=True, errors="coerce")
         
         # Detect format
         
