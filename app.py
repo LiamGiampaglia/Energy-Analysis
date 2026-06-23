@@ -58,8 +58,13 @@ if files:
 
             
         
-        # Clean
-        temp_df = temp_df.dropna(subset=["datetime", "consumption"])
+        
+            # Convert to numeric (CRITICAL FIX)
+            temp_df["consumption"] = pd.to_numeric(temp_df["consumption"], errors="coerce")
+            
+            # Clean
+            temp_df = temp_df.dropna(subset=["datetime", "consumption"])
+
 
 
         # ✅ ADD FUEL TYPE FROM FILE NAME
