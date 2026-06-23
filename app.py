@@ -42,9 +42,6 @@ if files:
             temp_df = temp_df[1:]
 
             temp_df.columns = temp_df.columns.astype(str).str.strip()
-            # ✅ Convert interval columns ONLY (exclude first column)
-            new_cols = ["date"] + [str(i) for i in range(1, len(temp_df.columns))]
-            temp_df.columns = new_cols
             temp_df = temp_df.rename(columns={temp_df.columns[0]: "date"})
             temp_df["date"] = pd.to_datetime(temp_df["date"], dayfirst=True, errors="coerce")
         
@@ -70,37 +67,6 @@ if files:
         temp_df["consumption"] = pd.to_numeric(temp_df["consumption"], errors="coerce")
         
         temp_df = temp_df.dropna(subset=["datetime", "consumption"])
-
-
-
-        
-            # Convert date
-        temp_df["date"] = pd.to_datetime(temp_df["date"], dayfirst=True, errors="coerce")
-        
-            # ✅ Convert interval column to numeric (1–48)
-            
-            # ✅ Clean interval values properly
-        temp_df["interval"] = temp_df["interval"].astype(str).str.strip()
-            
-            # Extract number from string (handles '1', '1.0', '1 ')
-        temp_df["interval"] = temp_df["interval"].str.extract(r'(\d+)')
-            
-        temp_df["interval"] = pd.to_numeric(temp_df["interval"], errors="coerce")
-
-        
-            # ✅ Convert interval → time (30-min slots)
-        temp_df["datetime"] = temp_df["date"] + pd.to_timedelta(
-            (temp_df["interval"] - 1) * 30, unit="minutes"
-        )
-        
-        temp_df = temp_df.drop(columns=["date", "interval"])
-        
-        # Convert to numeric (CRITICAL FIX)
-        temp_df["consumption"] = pd.to_numeric(temp_df["consumption"], errors="coerce")
-            
-        # Clean
-        temp_df = temp_df.dropna(subset=["datetime", "consumption"])
-
 
 
         # ✅ ADD FUEL TYPE FROM FILE NAME
