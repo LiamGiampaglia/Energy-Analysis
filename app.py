@@ -39,7 +39,7 @@ if files:
             temp_df.columns = headers
             
             # Remove header row from data
-            temp_df = temp_df[1:]
+            temp_df = temp_df.iloc[1:].reset_index(drop=True)
 
             temp_df.columns = temp_df.columns.astype(str).str.strip()
             
