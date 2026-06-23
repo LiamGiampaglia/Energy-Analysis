@@ -56,7 +56,19 @@ if files:
             temp_df["interval"] = temp_df["interval"].astype(int)
 
 
+            
+            # ✅ Clean consumption values properly
+            temp_df["consumption"] = (
+                temp_df["consumption"]
+                .astype(str)
+                .str.replace(",", ".", regex=False)      # fix commas
+                .str.replace("\xa0", "", regex=False)    # remove weird spaces
+                .str.strip()
+            )
+            
+            # Convert to numeric
             temp_df["consumption"] = pd.to_numeric(temp_df["consumption"], errors="coerce")
+
             temp_df = temp_df.dropna(subset=["consumption"])
 
 
