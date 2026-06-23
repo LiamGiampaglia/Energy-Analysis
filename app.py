@@ -57,7 +57,17 @@ if files:
     
             # ✅ Convert values
             temp_df["interval"] = pd.to_numeric(temp_df["interval"], errors="coerce")
+            
+            temp_df["consumption"] = (
+                temp_df["consumption"]
+                .astype(str)
+                .str.replace(",", ".", regex=False)   # fix decimal commas
+                .str.replace("\xa0", "", regex=False) # remove weird spaces
+                .str.strip()
+            )
+            
             temp_df["consumption"] = pd.to_numeric(temp_df["consumption"], errors="coerce")
+
     
             # ✅ Create datetime
             temp_df["datetime"] = temp_df["date"] + pd.to_timedelta(
