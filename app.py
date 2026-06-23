@@ -31,14 +31,44 @@ if files:
             temp_df = pd.read_excel(file, engine="openpyxl", skiprows=1)
 
         temp_df.columns = temp_df.columns.str.strip()
+        
+        # Detect format
+        if temp_df.shape[1] > 2:
+        
+            # Wide format (48 columns)
+            date_col = temp_df.columns[0]
+        
+            temp_df = temp_df.rename(columns={date_col: "date"})
+        
+            temp_df = temp_df.melt(
+                id_vars=["date"],
+                var_name="interval",
+                value_name="consumption"
+            )
+        
+            temp_df["date"] = pd.to_datetime(temp_df["date"], dayfirst=True, errors="coerce")
+        
+            temp_df["interval"] = temp_df.groupby("date").cumcount()
+        
+            temp_df["datetime"] = temp_df["date"] + pd.to_timedelta(
+                temp_df["interval"] * 30, unit="minutes"
+            )
+        
+            temp_df = temp_df.drop(columns=["date", "interval"])
+        
+        else:
+        
+            # Standard format
+            temp_df = temp_df.rename(columns={
+                "Date": "datetime",
+                "Value": "consumption"
+            })
+        
+            temp_df["datetime"] = pd.to_datetime(temp_df["datetime"], dayfirst=True, errors="coerce")
+        
+        # Clean
+        temp_df = temp_df.dropna(subset=["datetime", "consumption"])
 
-        temp_df = temp_df.rename(columns={
-            "Date": "datetime",
-            "Value": "consumption"
-        })
-
-        temp_df["datetime"] = pd.to_datetime(temp_df["datetime"], dayfirst=True, errors="coerce")
-        temp_df = temp_df.dropna(subset=["datetime"])
 
         # ✅ ADD FUEL TYPE FROM FILE NAME
         if "gas" in file.name.lower():
