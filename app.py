@@ -45,9 +45,6 @@ if file:
     df["weekday"] = df["datetime"].dt.dayofweek
     df["is_weekend"] = df["weekday"] >= 5
 
-    st.subheader("✅ Cleaned Data")
-    st.write(df.head())
-
     # -----------------------------
     # Key metrics
     # -----------------------------
