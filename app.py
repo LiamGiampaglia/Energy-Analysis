@@ -65,7 +65,15 @@ if files:
             temp_df["date"] = pd.to_datetime(temp_df["date"], dayfirst=True, errors="coerce")
         
             # ✅ Convert interval column to numeric (1–48)
+            
+            # ✅ Clean interval values properly
+            temp_df["interval"] = temp_df["interval"].astype(str).str.strip()
+            
+            # Extract number from string (handles '1', '1.0', '1 ')
+            temp_df["interval"] = temp_df["interval"].str.extract(r'(\d+)')
+            
             temp_df["interval"] = pd.to_numeric(temp_df["interval"], errors="coerce")
+
         
             # ✅ Convert interval → time (30-min slots)
             temp_df["datetime"] = temp_df["date"] + pd.to_timedelta(
